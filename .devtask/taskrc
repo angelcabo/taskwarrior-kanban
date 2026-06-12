@@ -1,0 +1,29 @@
+# Scratch Taskwarrior config used ONLY for local development of taskwarrior-kanban.
+# Mirrors the real workflow schema so the demo board looks like the real thing.
+# Data location is supplied via the TASKDATA env var (see package.json dev:demo).
+
+uda.state.type=string
+uda.state.label=State
+uda.state.values=triage,todo,active,review,done,canceled
+
+uda.agent.type=string
+uda.agent.label=Agent
+uda.agent.values=claude,codex,mock
+
+uda.branch.type=string
+uda.branch.label=Branch
+
+report.board.columns=state,description
+report.board.labels=State,Task
+report.board.sort=urgency-
+report.board.filter=status:pending
+
+urgency.uda.state.active.coefficient=500
+urgency.uda.state.review.coefficient=400
+urgency.uda.state.todo.coefficient=300
+urgency.uda.state.triage.coefficient=200
+urgency.uda.state.done.coefficient=-100
+urgency.uda.state.canceled.coefficient=-200
+
+confirmation=no
+hooks=off

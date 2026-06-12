@@ -1,0 +1,20 @@
+{
+  "name": "taskwarrior-kanban",
+  "private": true,
+  "type": "module",
+  "description": "A live, terminal-homage Kanban board for Taskwarrior.",
+  "license": "MIT",
+  "scripts": {
+    "dev": "concurrently -n server,web -c green,cyan \"pnpm -C server dev\" \"pnpm -C web dev\"",
+    "dev:demo": "TASKRC=$PWD/.devtask/taskrc TASKDATA=$PWD/.devtask/data concurrently -n server,web -c green,cyan \"pnpm -C server dev\" \"pnpm -C web dev\"",
+    "seed:demo": "bash scripts/seed-demo.sh",
+    "build": "pnpm -C web build",
+    "typecheck": "pnpm -C server typecheck && pnpm -C web typecheck",
+    "start": "NODE_ENV=production pnpm -C server start",
+    "start:demo": "TASKRC=$PWD/.devtask/taskrc TASKDATA=$PWD/.devtask/data pnpm build && TASKRC=$PWD/.devtask/taskrc TASKDATA=$PWD/.devtask/data NODE_ENV=production pnpm -C server start"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  },
+  "packageManager": "pnpm@11.3.0"
+}

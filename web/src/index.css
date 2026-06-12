@@ -1,0 +1,326 @@
+@import 'tailwindcss';
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Phosphor — a terminal-homage theme for the Taskwarrior board.
+   Mono-forward, true-ink background, phosphor-green + amber, faint CRT FX.
+   ──────────────────────────────────────────────────────────────────────── */
+
+@theme {
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas,
+    monospace;
+
+  --color-ink: #06080a;
+  --color-abyss: #03050a;
+  --color-surface: #090d0e;
+  --color-panel: #0b1012;
+  --color-panel-hi: #0e1517;
+  --color-line: #18211d;
+  --color-line-strong: #26332c;
+
+  --color-fg: #cfe4d8;
+  --color-fg-dim: #80998c;
+  --color-fg-faint: #4c6157;
+
+  --color-phosphor: #7cffb2;
+  --color-phosphor-soft: #57d99a;
+  --color-phosphor-deep: #1f6f4a;
+  --color-amber: #ffb454;
+  --color-coral: #ff6b5e;
+  --color-rose: #ff5168;
+
+  --radius-card: 5px;
+}
+
+:root {
+  color-scheme: dark;
+  --scan-opacity: 0.45;
+  --grain-opacity: 0.045;
+
+  /* semantic accents (referenced from TS via var()) — dark defaults */
+  --st-triage: #7e948c;
+  --st-todo: #57d99a;
+  --st-active: #7cffb2;
+  --st-review: #ffb454;
+  --st-done: #3f8f6a;
+  --st-canceled: #5d6f66;
+  --urg-low: #2a3a30;
+  --ag-muted: #7e948c;
+}
+
+/* ── light theme: "paper terminal" ────────────────────────────────────────
+   Same structure, re-pigmented. Neon accents become deep, legible inks; the
+   CRT FX dial right down. Everything switches via the cascade — no JS recolor. */
+:root[data-theme='light'] {
+  color-scheme: light;
+  --scan-opacity: 0.05;
+  --grain-opacity: 0.025;
+
+  --color-ink: #e8ece7;
+  --color-abyss: #dde3dc;
+  --color-surface: #f4f7f2;
+  --color-panel: #fcfdfb;
+  --color-panel-hi: #ffffff;
+  --color-line: #d5ddd3;
+  --color-line-strong: #bac6b8;
+
+  --color-fg: #16241c;
+  --color-fg-dim: #4b5d52;
+  --color-fg-faint: #7c8c81;
+
+  --color-phosphor: #0b8a4f;
+  --color-phosphor-soft: #12a160;
+  --color-phosphor-deep: #0a5f38;
+  --color-amber: #b06a08;
+  --color-coral: #d23b2c;
+  --color-rose: #d12559;
+
+  --st-triage: #6f8178;
+  --st-todo: #1a9d61;
+  --st-active: #0b8a4f;
+  --st-review: #b06a08;
+  --st-done: #2c7d54;
+  --st-canceled: #8a968d;
+  --urg-low: #cbd4ca;
+  --ag-muted: #647a6f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-ink);
+  color: var(--color-fg);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.5;
+  font-feature-settings: 'calt' 1, 'ss02' 1;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow: hidden;
+  background-image:
+    radial-gradient(
+      120% 80% at 16% -12%,
+      rgba(124, 255, 178, 0.07),
+      transparent 60%
+    ),
+    radial-gradient(
+      90% 65% at 102% -5%,
+      rgba(255, 180, 84, 0.04),
+      transparent 55%
+    ),
+    radial-gradient(
+      150% 130% at 50% 120%,
+      rgba(0, 0, 0, 0.6),
+      transparent 60%
+    );
+}
+
+/* light mode swaps the murky bottom vignette for airy top tints */
+:root[data-theme='light'] body {
+  background-image:
+    radial-gradient(
+      120% 80% at 16% -12%,
+      color-mix(in srgb, var(--color-phosphor) 9%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      90% 65% at 102% -5%,
+      color-mix(in srgb, var(--color-amber) 7%, transparent),
+      transparent 55%
+    );
+}
+
+#root {
+  position: relative;
+  isolation: isolate;
+}
+
+/* ── CRT overlays: fixed, non-interactive ─────────────────────────────── */
+.fx {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+.fx-scanlines {
+  z-index: 70;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, 0.17) 3px,
+    rgba(0, 0, 0, 0) 4px
+  );
+  opacity: var(--scan-opacity);
+  mix-blend-mode: multiply;
+  animation: scan-drift 9s linear infinite;
+}
+@keyframes scan-drift {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 4px;
+  }
+}
+.fx-grain {
+  z-index: 71;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: var(--grain-opacity);
+  mix-blend-mode: overlay;
+}
+.fx-vignette {
+  z-index: 69;
+  box-shadow: inset 0 0 240px 50px rgba(0, 0, 0, 0.62);
+}
+:root[data-theme='light'] .fx-vignette {
+  box-shadow: inset 0 0 180px 40px rgba(90, 110, 96, 0.1);
+}
+
+/* ── glow + terminal accents ──────────────────────────────────────────── */
+.glow-phosphor {
+  text-shadow:
+    0 0 6px color-mix(in srgb, var(--color-phosphor) 55%, transparent),
+    0 0 20px color-mix(in srgb, var(--color-phosphor) 22%, transparent);
+}
+.glow-amber {
+  text-shadow: 0 0 6px color-mix(in srgb, var(--color-amber) 50%, transparent);
+}
+.glow-soft {
+  text-shadow: 0 0 5px color-mix(in srgb, var(--color-phosphor) 35%, transparent);
+}
+/* halos read as muddy fringes on paper — drop them in light mode */
+:root[data-theme='light'] .glow-phosphor,
+:root[data-theme='light'] .glow-amber,
+:root[data-theme='light'] .glow-soft {
+  text-shadow: none;
+}
+
+@keyframes blink {
+  0%,
+  48% {
+    opacity: 1;
+  }
+  49%,
+  100% {
+    opacity: 0;
+  }
+}
+.blink {
+  animation: blink 1.05s steps(1) infinite;
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-phosphor) 50%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 6px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+.pulse-ring {
+  animation: pulse-ring 1.9s ease-out infinite;
+}
+
+/* an external change just touched this card */
+@keyframes flash-changed {
+  0% {
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--color-phosphor) 90%, transparent),
+      0 0 26px color-mix(in srgb, var(--color-phosphor) 55%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 1px var(--color-line), 0 0 0 transparent;
+  }
+}
+.flash-changed {
+  animation: flash-changed 2.4s ease-out;
+}
+
+@keyframes flash-amber {
+  0% {
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--color-amber) 90%, transparent),
+      0 0 26px color-mix(in srgb, var(--color-amber) 50%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 1px var(--color-line), 0 0 0 transparent;
+  }
+}
+.flash-amber {
+  animation: flash-amber 2.4s ease-out;
+}
+
+/* ── scrollbars ───────────────────────────────────────────────────────── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line-strong) transparent;
+}
+*::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--color-line-strong);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--color-phosphor-deep);
+  background-clip: content-box;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-phosphor) 22%, transparent);
+  color: var(--color-fg);
+}
+
+:focus-visible {
+  outline: 1px solid var(--color-phosphor-soft);
+  outline-offset: 1px;
+}
+
+input,
+textarea,
+select,
+button {
+  font: inherit;
+  color: inherit;
+}
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-fg-faint);
+}
+
+/* utility: hide scrollbar but keep scroll (column inner lists use thin bars) */
+.no-drag {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+@keyframes toast-bar {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+.toast-bar {
+  transform-origin: left;
+  animation: toast-bar 4.2s linear forwards;
+}

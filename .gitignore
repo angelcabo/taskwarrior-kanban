@@ -1,0 +1,9 @@
+node_modules/
+dist/
+web/dist/
+.devtask/data/
+*.log
+.DS_Store
+.env
+.env.*
+!.env.example
