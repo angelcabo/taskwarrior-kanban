@@ -25,7 +25,8 @@ agents working through your backlog.
 - **Edit everything.** Click a card to open the detail drawer: description, project,
   branch, due date, agent, priority, tags, annotations, and lifecycle actions
   (start / stop / done / delete). Plus a metadata footer with urgency, timestamps, and a
-  copyable UUID.
+  copyable UUID — and, when paired with Symphony, a **live agent-activity log** that
+  streams what the agent is doing on that task in real time.
 - **Quick-add.** Press `c` for a centered composer to create a task with state, agent,
   priority, project, branch, due, and tags.
 - **Boards & filters.** Define multiple boards (each is a Taskwarrior filter + a set of
@@ -87,6 +88,7 @@ pnpm dev          # server :8787 + web :5173 (open http://localhost:5173)
 # ── Against a throwaway demo DB (your real ~/.task is never touched) ─
 pnpm seed:demo    # seeds 15 sample tasks into ./.devtask/data
 pnpm dev:demo     # same, but TASKDATA/TASKRC point at ./.devtask
+pnpm reset:demo   # re-seed a pristine board (+3 agent:mock todos) to re-show the demo
 
 # ── Production (server serves the built SPA + API on one port) ──────
 pnpm build        # → web/dist
@@ -139,7 +141,8 @@ export TASKRC=/path/to/taskwarrior-kanban/.devtask/taskrc
 export TASKDATA=/path/to/taskwarrior-kanban/.devtask/data
 ./scripts/setup-taskwarrior.sh        # add state/agent/branch UDAs to the shared store
 ./scripts/seed-demo.sh                # 3 agent:mock tasks (simulated, safe)
-SYMPHONY_LOG_PRETTY=1 node dist/index.js start     # poll → clone → run → move
+# mock pacing (≈9s of "work" per task) makes the march watchable, not a 0.8s blip
+SYMPHONY_LOG_PRETTY=1 SYMPHONY_MOCK_STEPS=6 SYMPHONY_MOCK_STEP_MS=1500 node dist/index.js start
 
 # ── Terminal B — the window (this board), on that SAME store ──
 cd /path/to/taskwarrior-kanban
@@ -147,8 +150,12 @@ pnpm install
 pnpm dev:demo                         # → http://localhost:5173  (dev:demo points at ./.devtask)
 ```
 
-Open http://localhost:5173 and watch the three cards march **triage → active → review** as the
-mock agent processes each one in its own clone.
+Open http://localhost:5173 and watch the cards march **todo → active → review** as the mock
+agent processes each one in its own clone. Click any in-flight card to see its **live agent
+log** streaming in the detail drawer — the board reads it from Symphony's HTTP API
+(`SYMPHONY_TARGET`, default `127.0.0.1:4517`) — or tail a single task from a terminal with
+`symphony watch <id>`. To re-run from a clean slate, `pnpm reset:demo` re-seeds a pristine board
+plus three fresh `agent:mock` todos.
 
 ### Going real
 

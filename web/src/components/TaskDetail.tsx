@@ -7,6 +7,7 @@ import type { Task } from '../lib/types'
 import { agentColor, priorityMeta, stateAccent, STATE_GLYPH } from '../lib/theme'
 import { fullTime, relTime } from '../lib/format'
 import { ConfirmButton, Field, Menu, TextArea, TextInput, cx, hexA } from './ui'
+import { AgentLog } from './AgentLog'
 
 export function TaskDetail() {
   const uuid = useStore((s) => s.selectedUuid)
@@ -285,6 +286,8 @@ export function TaskDetail() {
               />
             </div>
           </div>
+
+          {task.agent && <AgentLog key={task.uuid} task={task} />}
 
           <MetaFooter task={task} />
         </div>

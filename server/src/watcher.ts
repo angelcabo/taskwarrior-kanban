@@ -60,6 +60,13 @@ export async function startWatching(dataLocation: string): Promise<void> {
 
   watcher = chokidar.watch(targets, {
     ignoreInitial: true,
+    // Stat-poll the paths instead of trusting native fs events. TaskChampion —
+    // and `seed:demo` especially — can delete and recreate the whole data dir,
+    // which silently drops a native watch for good (the inode it held is gone).
+    // Polling keeps re-stat'ing the same paths, so it rediscovers the sqlite
+    // after a full reset and realtime survives. Cost is trivial (a few files).
+    usePolling: true,
+    interval: 150,
     // The WAL/SHM files are written very frequently; let chokidar settle.
     awaitWriteFinish: { stabilityThreshold: 120, pollInterval: 40 },
   })
